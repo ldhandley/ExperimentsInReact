@@ -102,10 +102,15 @@
       this.props.onChange(Object.assign({},this.props.contact, {description: e.target.value}))
     },
 
+    onSubmit: function(e) {
+      e.preventDefault();
+      this.props.submitNewContact();
+    },
+
     render:function(){
 
       return(
-        React.createElement('form',{className:'ContactForm', onSubmit: this.props.submitNewContact},
+        React.createElement('form',{className:'ContactForm', onSubmit: this.onSubmit},
           React.createElement('input',{
             type:'text',
             placeholder:'Name (required)',
@@ -161,6 +166,12 @@
   });
 
   /*
+   * Constants
+   */
+
+  var CONTACT_TEMPLATE = {name: "", email: "", description: "", errors: null};
+
+  /*
    * Actions
    */
 
@@ -169,14 +180,22 @@
     console.log(contact)
   }
 
-  function submitNewContact(e){
-    e.preventDefault()
-    Object.assign(this.state.newContact, {key: this.state.contacts[this.state.contacts.length-1].key + 1})
-    console.log(this.state.contacts[this.state.contacts.length-1].key + 1)
-    this.setState({
-      contacts: this.state.contacts.concat([this.state.newContact]) 
+  function submitNewContact(){
+    var contact = Object.assign({}, state.newContact, {key: state.contacts.length + 1, errors:{}})
+    
+    if (!contact.name) {
+      contact.errors.name = ["Please enter your new contact's name."]
+      console.log("ERROR",contact.errors.name)
+    }
+    if (!/.+@.+\..+/.test(contact.email)) {
+      contact.errors.email = ["Please enter your new contact's email"]
+      console.log("ERROR",contact.errors.email)
+    }
+
+    Object.assign(state.newContact, {key: state.contacts[state.contacts.length-1].key + 1})
+    setState({
+      contacts: state.contacts.concat([state.newContact]) 
     });
-    console.log("New contacts:", this.state.contacts)
   }
 
   /*
@@ -205,7 +224,7 @@
       {key: 2, name: "Jim", email: "jim@example.com"},
       {key: 3, name: "Joe"}
     ],
-    newContact: {name:"", email:"", description: ""}
+    newContact: Object.assign({}, CONTACT_TEMPLATE) 
   });
 
 </script>
